@@ -11,7 +11,6 @@ public class ClientPost
 	public static string[] Methods => new string[] { HttpMethod.Post.ToString() };
 	public static Delegate Handle => Action;
 
-	[AllowAnonymous]
 	public static async Task<IResult> Action(ClientRequest clientRequest, UserCreator userCreator)
 	{
 		var userClaims = new List<Claim>

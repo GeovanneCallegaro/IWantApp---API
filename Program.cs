@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Sinks.MSSqlServer;
 using System.Text;
@@ -35,10 +36,11 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
 	.AddEntityFrameworkStores<ApplicationDBContext>();
 builder.Services.AddAuthorization(options =>
 {
-	options.FallbackPolicy = new AuthorizationPolicyBuilder()
+
+	options.AddPolicy("Authorize", new AuthorizationPolicyBuilder()
 		.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
 		.RequireAuthenticatedUser()
-		.Build();
+		.Build());
 
 	options.AddPolicy("EmployeePolicy", 
 		p => p.RequireAuthenticatedUser().RequireClaim("EmployeeCode"));
@@ -67,19 +69,19 @@ builder.Services.AddAuthentication(x =>
 builder.Services.AddScoped<QueryAllUsersWithName>();
 builder.Services.AddScoped<UserCreator>();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+	c.SwaggerDoc("v1", new OpenApiInfo { Title = "IWantApp", Version = "v1" });
+});
 
 var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
-
-if(app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(opt =>
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
+	opt.SwaggerEndpoint("/swagger/v1/swagger.json", "IWantApp");
+});
 
 app.MapMethods(CategoryPost.Template, CategoryPost.Methods, CategoryPost.Handle);
 app.MapMethods(CategoryGetAll.Template, CategoryGetAll.Methods, CategoryGetAll.Handle);

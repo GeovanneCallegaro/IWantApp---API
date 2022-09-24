@@ -11,7 +11,7 @@ public class ClientGet
 	public static string[] Methods => new string[] { HttpMethod.Get.ToString() };
 	public static Delegate Handle => Action;
 
-	[AllowAnonymous]
+	[Authorize(Policy = "Authorize")]
 	public static async Task<IResult> Action(HttpContext http)
 	{
 		var user = http.User;

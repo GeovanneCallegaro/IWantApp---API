@@ -1,5 +1,6 @@
 ﻿using IWantApp.Domain.Products;
 using IWantApp.Infra.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -11,6 +12,7 @@ public class CategoryPut
 	public static string[] Methods => new string[] { HttpMethod.Put.ToString() };
 	public static Delegate Handle => Action;
 
+	[Authorize(Policy = "Authorize")]
 	public static IResult Action([FromRoute] Guid Id, HttpContext http, CategoryRequest categoryRequest, ApplicationDBContext context)
 	{
 		var userId = http.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
